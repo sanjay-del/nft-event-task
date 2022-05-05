@@ -8,7 +8,6 @@ const axios = require('axios').default;
 const Transfer = require('./models/transfer');
 const dotenv = require("dotenv");
 dotenv.config();
-api = 'JBJSJDBDHD69IQ3TYMP3F3WD91YHGQP77E'
 app.use(cors());
 app.use(express.json());
 
@@ -26,7 +25,7 @@ const Params = {
     toBlock:'latest',
     address:'0x491Cf9F48206D38568828C63623f4CC6607CC53d',
     topic0:'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
-    apikey:api,
+    apikey:process.env.etherkey,
 };
 try{
 const logs = await axios.get('https://api.etherscan.io/api',{params:Params,});
@@ -39,18 +38,16 @@ const response1  = await Promise.all(
         return {
             time: Number(res.timeStamp),
             hash: res.transactionHash,
-           value:await getval(res.transactionHash),
+            current_value:await getval(res.transactionHash),
+            ts_matic_price: await fetchprice(Number(res.timeStamp),'matic'),
+            ts_usd_price: await fetchprice(Number(res.timeStamp),'usd'),
            tokenId: Number(res.topics[3]),
         };
     })
 )
 console.log(response1);
 
-// async function everyval(){
-//     for (respon in response1){
 
-//     }
-// };
 
 // const responses = await Promise.all(
 //     data.map((res)=>{
@@ -90,3 +87,25 @@ async function getval(hash){
    //console.log(eth_price)
    return eth_price;
 }
+
+
+
+async function fetchprice(timestamp, tosymbol){
+
+    const Param ={
+        fsym: 'eth', 
+        tsyms: tosymbol,
+        ts:timestamp,
+       // api_key: process.env.cryptoapi
+    };
+    const returnval = await axios.get('https://min-api.cryptocompare.com/data/pricehistorical',{params:Param,});
+    // if(tosymbol ==='matic')
+    //     console.log( returnval.data.ETH.MATIC);
+    // else if (tosymbol ==='usd')
+    //     console.log(returnval.data.ETH.USD)
+    // else
+    //     console.log('errr' + returnval.data);
+    return returnval.data;
+}
+
+//fetchprice(1651737007, 'usd');
