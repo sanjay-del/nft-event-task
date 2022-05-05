@@ -1,0 +1,92 @@
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const Web3 = require('web3');
+const mongoose = require('mongoose');
+const C_ADDRESS = require('./config');
+const axios = require('axios').default;
+const Transfer = require('./models/transfer');
+const dotenv = require("dotenv");
+dotenv.config();
+api = 'JBJSJDBDHD69IQ3TYMP3F3WD91YHGQP77E'
+app.use(cors());
+app.use(express.json());
+
+if (typeof web3 !== 'undefined') {
+	var web3 = new Web3(web3.currentProvider);
+} else {
+	var web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'));
+}
+async function datapull(){
+
+const Params = {
+    module: "logs",
+    action: "getlogs",
+    fromBlock:14714345,
+    toBlock:'latest',
+    address:'0x491Cf9F48206D38568828C63623f4CC6607CC53d',
+    topic0:'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+    apikey:api,
+};
+try{
+const logs = await axios.get('https://api.etherscan.io/api',{params:Params,});
+
+
+const data = logs.data.result;
+const txhash = data;
+const response1  = await Promise.all(
+    txhash.map(async(res)=>{
+        return {
+            time: Number(res.timeStamp),
+            hash: res.transactionHash,
+           value:await getval(res.transactionHash),
+           tokenId: Number(res.topics[3]),
+        };
+    })
+)
+console.log(response1);
+
+// async function everyval(){
+//     for (respon in response1){
+
+//     }
+// };
+
+// const responses = await Promise.all(
+//     data.map((res)=>{
+//         return {
+//             from: res.topics[1],
+//             to: res.topics[2],
+//             tokenId: Number(res.topics[3]),
+//         };
+//     })
+// );
+// responses.forEach(dbsend)
+
+// function dbsend(item, index, arr){
+//     const event = new Transfer(arr[index]);
+//     event.save()
+//         .then((result)=>console.log(`Submitted ${index} data to db`))
+//         .catch((err)=>{console.log(err)});
+// }
+
+
+ }
+catch(error){
+    console.log(error);
+}
+}
+
+//db connect 
+const dbURI = `mongodb+srv://jason:${process.env.passwd}@block-event.vs7ol.mongodb.net/nft-event-data?retryWrites=true&w=majority`;
+mongoose.connect(dbURI, {useNewUrlParser: true, useUnifiedTopology: true})
+    .then((result)=> (console.log('connected to db'), datapull())) //app.listen()
+    .catch((err)=> console.log(err));
+
+async function getval(hash){
+   const logs = await web3.eth.getTransaction(hash);
+   //console.log(logs)
+   const eth_price = web3.utils.fromWei(logs.value);
+   //console.log(eth_price)
+   return eth_price;
+}
