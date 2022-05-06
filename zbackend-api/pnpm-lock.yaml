@@ -9,6 +9,7 @@ specifiers:
   ioredis: ^5.0.4
   mongoose: ^6.3.2
   nodemon: ^2.0.15
+  redisscan: ^2.0.0
 
 dependencies:
   '@truffle/contract': 4.5.8
@@ -19,6 +20,7 @@ dependencies:
   ioredis: 5.0.4
   mongoose: 6.3.2
   nodemon: 2.0.16
+  redisscan: 2.0.0
 
 packages:
 
@@ -673,6 +675,10 @@ packages:
 
   /async-limiter/1.0.1:
     resolution: {integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==}
+    dev: false
+
+  /async/0.2.10:
+    resolution: {integrity: sha1-trvgsGdLnXGXCMo43owjfLUmw9E=}
     dev: false
 
   /asynckit/0.4.0:
@@ -1460,6 +1466,10 @@ packages:
   /dotenv/16.0.0:
     resolution: {integrity: sha512-qD9WU0MPM4SWLPJy/r2Be+2WgQj8plChsyrCNQzW/0WjvcJQiKQJ9mH3ZgB3fxbUUxgc/11ZJ0Fi5KiimWGz2Q==}
     engines: {node: '>=12'}
+    dev: false
+
+  /double-ended-queue/2.1.0-0:
+    resolution: {integrity: sha1-ED01J/0xUo9AGIEwyEHv3XgmTlw=}
     dev: false
 
   /duplexer3/0.1.4:
@@ -3363,9 +3373,18 @@ packages:
       picomatch: 2.3.1
     dev: false
 
+  /redis-commands/1.7.0:
+    resolution: {integrity: sha512-nJWqw3bTFy21hX/CPKHth6sfhZbdiHP6bTawSgQBlKOVRG7EZkfHbbHwQJnrE4vsQf0CMNE+3gJ4Fmm16vdVlQ==}
+    dev: false
+
   /redis-errors/1.2.0:
     resolution: {integrity: sha1-62LSrbFeTq9GEMBK/hUpOEJQq60=}
     engines: {node: '>=4'}
+    dev: false
+
+  /redis-parser/2.6.0:
+    resolution: {integrity: sha1-Uu0J2srBCPGmMcB+m2mUHnoZUEs=}
+    engines: {node: '>=0.10.0'}
     dev: false
 
   /redis-parser/3.0.0:
@@ -3373,6 +3392,22 @@ packages:
     engines: {node: '>=4'}
     dependencies:
       redis-errors: 1.2.0
+    dev: false
+
+  /redis/2.8.0:
+    resolution: {integrity: sha512-M1OkonEQwtRmZv4tEWF2VgpG0JWJ8Fv1PhlgT5+B+uNq2cA3Rt1Yt/ryoR+vQNOQcIEgdCdfH0jr3bDpihAw1A==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      double-ended-queue: 2.1.0-0
+      redis-commands: 1.7.0
+      redis-parser: 2.6.0
+    dev: false
+
+  /redisscan/2.0.0:
+    resolution: {integrity: sha1-AObWOGxeKDRF5yhvBHLHJpCyBiE=}
+    dependencies:
+      async: 0.2.10
+      redis: 2.8.0
     dev: false
 
   /regenerator-runtime/0.13.9:

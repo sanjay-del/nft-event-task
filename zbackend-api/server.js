@@ -8,10 +8,12 @@ const C_ADDRESS = require('./config');
 const axios = require('axios').default;
 const Transfer = require('./models/transfer');
 const dotenv = require("dotenv");
+//const redisscan = require('redisscan');
 dotenv.config();
 app.use(cors());
 app.use(express.json());
 
+//web3 provider
 if (typeof web3 !== 'undefined') {
 	var web3 = new Web3(web3.currentProvider);
 } else {
@@ -20,11 +22,24 @@ if (typeof web3 !== 'undefined') {
 
 //---db connect 
 //--------
-
 const dbURI = `mongodb+srv://jason:${process.env.passwd}@block-event.vs7ol.mongodb.net/nft-event-data?retryWrites=true&w=majority`;
 mongoose.connect(dbURI, {useNewUrlParser: true, useUnifiedTopology: true})
-    .then((result)=> (console.log('connected to db'), datapull())) //app.listen()
+    .then((result)=> (console.log('connected to db'), datapull(),app.listen(5000), console.log('Listening on port 5000'))) 
     .catch((err)=> console.log(err));
+
+//redis db connection
+const redisClient = redis.createClient({
+    host:'127.0.0.1',
+    port: 6379,
+
+});
+redisClient.on('connect', function(){
+    console.log('Connected to redis instance');
+ });
+ redisClient.on('error',(error) => {
+    console.log('Redis connection error :', error);
+})
+
 
 
 /**
@@ -46,11 +61,19 @@ const logs = await axios.get('https://api.etherscan.io/api',{params:Params,});
 
 
 const data = logs.data.result;
+datamanip(data);
+}
+catch(err){
+    console.log(err);
+}}
 
-
-/*to pull data for redis 
-
-*/
+/**
+ * 
+ * @param {blockchain fetched data} data 
+ */
+async function datamanip(data){
+//redis store
+try{
 const txhash = data;
 const response1  = await Promise.all(
     txhash.map(async(res)=>{
@@ -64,7 +87,6 @@ const response1  = await Promise.all(
         };
     })
 )
-// console.log(response1);
  rediscaching(response1);
 
 
@@ -85,10 +107,11 @@ responses.forEach(dbsend)
 function dbsend(item, index, arr){
     const event = new Transfer(arr[index]);
     event.save()
-        .then((result)=>console.log(`Submitted ${index} data to db`))
+        .then((result)=>console.log(`Submitted ${arr[index].tokenId} data to db`))
         .catch((err)=>{console.log(err)});
 }
- }
+
+}
 catch(error){ console.log(error);}}
 
 
@@ -130,61 +153,23 @@ async function fetchprice(timestamp, tosymbol){
     
 }
 
+
+
 //fetchprice(1651737007, 'usd');
 /**
  * 
  * @param {array of json objects } data 
  */
  async function rediscaching(data){
-    //  data =[{
-    //     time: 1651727020,
-    //     hash: '0xa2c4672fc52ae51a3d959d548d6581a0b34c2ce2a9828aa78ec65a77f5ad4cc5',
-    //     current_value: '0.096',
-    //     ts_matic_price: 2609.17,
-    //     ts_usd_price: 2732.65,
-    //     tokenId: 46
-    //   },
-    //   {
-    //     time: 1651727020,
-    //     hash: '0xa2c4672fc52ae51a3d959d548d6581a0b34c2ce2a9828aa78ec65a77f5ad4cc5',
-    //     current_value: '0.096',
-    //     ts_matic_price: 2607.07,
-    //     ts_usd_price: 2759.37,
-    //     tokenId: 47
-    //   },
-    //   {
-    //     time: 1651727020,
-    //     hash: '0xa2c4672fc52ae51a3d959d548d6581a0b34c2ce2a9828aa78ec65a77f5ad4cc5',
-    //     current_value: '0.096',
-    //     ts_matic_price: 2606.72,
-    //     ts_usd_price: 2732.65,
-    //     tokenId: 48
-    //   },
-    //   {
-    //     time: 1651737007,
-    //     hash: '0xf51071399e8d5991f608b9d33b77ee88f631f03a6ebe29df3de785bbb0268fb7',
-    //     current_value: '0.024',
-    //     ts_matic_price: 2606.72,
-    //     ts_usd_price: 2755.49,
-    //     tokenId: 49
-    //   }];
-    const redisClient = redis.createClient({
-        host:'127.0.0.1',
-        port: 6379,
 
-    });
-    redisClient.on('connect', function(){
-        console.log('Connected to redis instance');
-     });
-     redisClient.on('error',(error) => {
-        console.log('Redis connection error :', error);
-    })
     const responses =  await Promise.all(
     data.map((res)=>{
         return{
             tokenId: res.tokenId,
             Historic_MATIC: res.ts_matic_price,
             Historic_USD: res.ts_usd_price,
+           // Current_Price: Number(res.current_value)*
+
         }
     })
     );
@@ -197,4 +182,34 @@ async function fetchprice(timestamp, tosymbol){
 
 }
 
-// rediscaching();
+
+/**
+ * 
+ * routes
+ */
+app.get('/events',(req,res)=>{
+    Transfer.find()
+        .then((result)=>{
+            res.send(result);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+});
+
+
+
+app.get('/token/:key', function (req, res) {
+     redisClient.get(req.params.key)
+     .then((result)=>{
+    console.log(JSON.parse(result));
+    res.send(JSON.parse(result));
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+
+});
+
+
+
