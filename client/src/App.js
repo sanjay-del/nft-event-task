@@ -7,7 +7,13 @@ import './App.css';
 function App() {
   const  [tokenPrices, setTokenprice] = useState([]);
   const [mongoEventdatas, setMongodata]= useState([]);
-
+  window.onscroll = function(){scrollfucntion()};
+  function scrollfucntion(){
+    var winScroll = document.body.scrollTop ||
+    document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight -
+    document.documentElement.clientHeight;
+  }
   useEffect(()=>{
           async function getter(){
             //const response1 = await fetch('http://localhost:5000/token');
@@ -25,9 +31,9 @@ function App() {
   return (
     <div className="overlay">
     <div className="App">
-       <h1 className="nft-name">Degen Ninja Turtles (DNT token)</h1>
+       <h1 className="nft-name" style={{textAlign: 'centre',color:'#66ff66'}}>Degen Ninja Turtles (DNT token)</h1>
        <h3> Mint your turtle nft <a href='https://degenninjaturtles.com/' target="_blank"> here.</a></h3>
-       <div className="eventCol" style={{display: 'flex', justifyContent:'flex-end'}}>
+       <div className="eventCol" id="col" >
           <ul>
             {
               mongoEventdatas.map(mongoEventdata =>(
@@ -40,11 +46,11 @@ function App() {
               ))
             }
           </ul>
-          <button >Show Transfer Event</button>
        </div>
       
       <div className="priceCol">
-
+          {/* <input type={search token price}>
+          <button onclick></button> */}
         <ul>
           {
             tokenPrices.map(tokenPrice =>(

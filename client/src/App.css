@@ -1,9 +1,9 @@
 @import url("https://fonts.googleapis.com/css?family=Press+Start+2P");
-@import url("https://fonts.googleapis.com/css?family=VT323");
+@import url("https://fonts.googleapis.com/css?family=Koulen");
 
 .App {
   text-align: center;
-  font-family: "Press Start 2P", "VT323";
+  font-family: "Koulen";
   color: white;
 }
 
@@ -32,9 +32,15 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url("./bd.gif");
+  background-image: url("./bg1.gif");
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed ;
   background-position: 40% 40%;
+}
+
+.eventCol{
+  overflow: auto;
+  height: 400 px;
+  
 }
