@@ -8,7 +8,8 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
-const ScrollComponent= ({mongoEventdatas, setMongodata})=>{
+const ScrollComponent= ()=>{
+    const [mongoEventdatas, setMongodata]= useState([]);
     useEffect(()=>{
         async function getter(){
           const response2 = await fetch('http://localhost:5000/events');
@@ -17,13 +18,13 @@ const ScrollComponent= ({mongoEventdatas, setMongodata})=>{
           
         }
         getter();
-},[]);
+},[setMongodata]);
 
 
 
-const generateItems =  () => {
-    //  const arr = Array.from(Array(amount))
-    //console.log(mongoEventdatas);
+
+const generateItems =  useCallback(() => {
+
     return mongoEventdatas.map((info)=>(
       {
         from:info.from,
@@ -32,11 +33,11 @@ const generateItems =  () => {
       }
 
     ))
-  }
+  },[mongoEventdatas]);
 
 
   const tableEl = useRef();
-  const [rows, setRows] = useState(generateItems);
+  const [rows, setRows] = useState();
   const [loading, setLoading] = useState(true);
   const [distanceBottom, setDistanceBottom] = useState(0)
 
@@ -55,14 +56,16 @@ const generateItems =  () => {
       )
     }
     loadItems()
-}, [rows])
+}, [generateItems])
 
 useEffect(()=>{
-    // generateItems();
+    //generateItems();
     setRows(generateItems());
     setLoading(false);
 
-},[generateItems,rows,setRows]);
+},[generateItems,setRows]);
+
+
 const scrollListener = useCallback(() => {
     let bottom = tableEl.current.scrollHeight - tableEl.current.clientHeight
     // if you want to change distanceBottom every time new data is loaded
@@ -88,13 +91,13 @@ const scrollListener = useCallback(() => {
       <Table stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell>from</TableCell>
-            <TableCell>to</TableCell>
-            <TableCell>tokenId</TableCell>
+            <TableCell>From</TableCell>
+            <TableCell>To</TableCell>
+            <TableCell>TokenId</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(({ from, to, tokenId }) => (
+          {rows?.map(({ from, to, tokenId }) => (
             <TableRow key={tokenId}>
               <TableCell>{from}</TableCell>
               <TableCell>{to}</TableCell>
