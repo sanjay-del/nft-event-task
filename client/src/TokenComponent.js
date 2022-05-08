@@ -34,9 +34,11 @@ import { useEffect,  useState} from 'react';
         <br/>
         {pricehistory.tokenId ? 
         <ul>
-        <li>MaticPriceAtMint : {pricehistory.Historic_MATIC}</li>
-        <li>USDPriceAtMint : {pricehistory.Historic_USD}</li>
         <li>TokenId : {pricehistory.tokenId}</li>
+        <li>Matic Price At Mint : {pricehistory.Historic_MATIC}</li>
+        <li>USD Price At Mint : {pricehistory.Historic_USD}</li>
+        <li>Ethereum Mint Amount:{pricehistory.curret_price}</li>
+  
         </ul>:(<div>TokenId not found</div>)}
         </Card>
     );

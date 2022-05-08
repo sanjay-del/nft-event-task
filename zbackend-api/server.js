@@ -50,7 +50,7 @@ async function datapull(){
 const Params = {
     module: "logs",
     action: "getlogs",
-    fromBlock:14714345,
+    fromBlock:14713904 ,
     toBlock:'latest',
     address:'0x491Cf9F48206D38568828C63623f4CC6607CC53d',
     topic0:'0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
@@ -166,14 +166,15 @@ async function fetchprice(timestamp, tosymbol){
     data.map((res)=>{
         return{
             tokenId: res.tokenId,
-            Historic_MATIC: res.ts_matic_price,
-            Historic_USD: res.ts_usd_price,
-           // Current_Price: Number(res.current_value)*
+            Historic_MATIC: res.ts_matic_price*Number(res.current_value),
+            Historic_USD: (res.ts_usd_price*Number(res.current_value)).toPrecision(6),
+            curret_price: Number(res.current_value),
+        
 
         }
     })
     );
-    console.log(responses);
+    // console.log(responses);
     responses.forEach((item, index, arr)=>
      redisClient.set(arr[index].tokenId,    JSON.stringify(arr[index]))
         .then((result)=> console.log(`values are set for ${arr[index].tokenId}`))
@@ -202,7 +203,7 @@ app.get('/events',(req,res)=>{
 app.get('/token/:key', function (req, res) {
      redisClient.get(req.params.key)
      .then((result)=>{
-    console.log(JSON.parse(result));
+    // console.log(JSON.parse(result));
     res.send(JSON.parse(result));
     })
     .catch((err)=>{
